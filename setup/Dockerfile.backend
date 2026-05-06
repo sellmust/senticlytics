@@ -1,0 +1,33 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
+
+# system deps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# copy requirements
+COPY requirements.txt .
+
+RUN pip install torch==2.3.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+
+RUN pip install --no-cache-dir --default-timeout=1000 -r requirements.txt
+
+# copy backend
+COPY backend ./backend
+
+WORKDIR /app
+
+EXPOSE 8000
+
+# healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --retries=5 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

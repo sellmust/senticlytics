@@ -1,0 +1,534 @@
+{
+  "name": "📊 Workflow 2 — Laporan Harian Otomatis ke Google Sheets & Email",
+  "nodes": [
+    {
+      "parameters": {
+        "fieldToSplitOut": "detailRows",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        0,
+        144
+      ],
+      "id": "1c3ac34b-35de-4907-a9db-4d00284cc25d",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/api/v1/feedback/stats/summary",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "days",
+              "value": "1"
+            },
+            {
+              "name": "date",
+              "value": "2026-05-02"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e85d2d33-f91f-404d-974f-671477ce17dd",
+      "name": "📈  Fetch Yesterday's Statistics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -688,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/api/v1/feedback/report/export",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "days",
+              "value": "1"
+            },
+            {
+              "name": "date",
+              "value": "2026-05-02"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f31d89b2-4aab-466c-8ee1-107d8e374182",
+      "name": "📋 Export All Yesterday's Feedback",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -688,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1f1tRc3eC615f-y17RyyoZ5y4WSAa_ojdxsM47KKVFbM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Summary",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Tanggal": "={{ $json.summaryRow.tanggal }}",
+            "Total": "={{ $json.summaryRow.total_feedback }}",
+            "Positif": "={{ $json.summaryRow.positif }}",
+            "Netral": "={{ $json.summaryRow.netral }}",
+            "Negatif": "={{ $json.summaryRow.negatif }}",
+            "% Positif": "={{ $json.summaryRow.persen_positif }}",
+            "% Negatif": "={{ $json.summaryRow.persen_negatif }}",
+            "Avg Rating": "={{ $json.summaryRow.avg_rating }}",
+            "Top Kategori": "={{ $json.summaryRow.top_kategori }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Tanggal",
+              "displayName": "Tanggal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Total",
+              "displayName": "Total",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Positif",
+              "displayName": "Positif",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Netral",
+              "displayName": "Netral",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Negatif",
+              "displayName": "Negatif",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "% Positif",
+              "displayName": "% Positif",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "% Negatif",
+              "displayName": "% Negatif",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Avg Rating",
+              "displayName": "Avg Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Top Kategori",
+              "displayName": "Top Kategori",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "a4728bdc-08f2-42e0-a97c-57e63e260f63",
+      "name": "📊 Write to Sheet: Daily Summary",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        240,
+        -96
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BC7rUGbCn8tRMmrk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1f1tRc3eC615f-y17RyyoZ5y4WSAa_ojdxsM47KKVFbM"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 22208575,
+          "mode": "list",
+          "cachedResultName": "Detail",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1f1tRc3eC615f-y17RyyoZ5y4WSAa_ojdxsM47KKVFbM/edit#gid=22208575"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Tanggal": "={{ $json.tanggal }}",
+            "ID": "={{ $json.feedback_id }}",
+            "Customer": "={{ $json.customer_id }}",
+            "Teks": "={{ $json.teks_feedback }}",
+            "Sentimen": "={{ $json.sentimen }}",
+            "Respons AI": "={{ $json.respons_ai }}",
+            "Kategori": "={{ $json.kategori }}",
+            "Rating": "={{ $json.rating }}",
+            "Sumber": "={{ $json.sumber }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Tanggal",
+              "displayName": "Tanggal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer",
+              "displayName": "Customer",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Teks",
+              "displayName": "Teks",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Sentimen",
+              "displayName": "Sentimen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Respons AI",
+              "displayName": "Respons AI",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Kategori",
+              "displayName": "Kategori",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rating",
+              "displayName": "Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Sumber",
+              "displayName": "Sumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "cdd98148-b486-493e-9b9c-e6fa0b9573a0",
+      "name": "📋 Write to Sheet: Feedback Detail ",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        240,
+        144
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "BC7rUGbCn8tRMmrk",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "rikonakei@gmail.com",
+        "subject": "=📊 Daily Feedback Report — {{ $json.date }}",
+        "message": "=<div style='font-family:Arial,sans-serif;max-width:600px'>\n<h2 style='color:#1B2A4A;border-bottom:3px solid #2563EB;padding-bottom:8px'>📊 Daily Feedback Report</h2>\n<p style='color:#6B7280'>{{ $json.date }}</p>\n<div style='display:flex;gap:12px;margin:16px 0'>\n  <div style='background:#EFF6FF;padding:12px 20px;border-radius:8px;text-align:center'>\n    <div style='font-size:28px;font-weight:bold;color:#2563EB'>{{ $json.total }}</div>\n    <div style='font-size:12px;color:#6B7280'>Total Feedback</div>\n  </div>\n  <div style='background:#F0FDF4;padding:12px 20px;border-radius:8px;text-align:center'>\n    <div style='font-size:28px;font-weight:bold;color:#16A34A'>{{ $json.pos_rate }}%</div>\n    <div style='font-size:12px;color:#6B7280'>Positive</div>\n  </div>\n  <div style='background:#FEF2F2;padding:12px 20px;border-radius:8px;text-align:center'>\n    <div style='font-size:28px;font-weight:bold;color:#DC2626'>{{ $json.neg_rate }}%</div>\n    <div style='font-size:12px;color:#6B7280'>Negative</div>\n  </div>\n  <div style='background:#FFFBEB;padding:12px 20px;border-radius:8px;text-align:center'>\n    <div style='font-size:28px;font-weight:bold;color:#D97706'>{{ $json.avg_rating }}</div>\n    <div style='font-size:12px;color:#6B7280'>Avg Rating</div>\n  </div>\n</div>\n<h3 style='color:#374151'>📂 Top Categories</h3>\n<p>{{ $json.top_categories }}</p>\n<p style='margin-top:24px'><a href='http://localhost:3000/dashboard' style='background:#2563EB;color:white;padding:10px 20px;border-radius:6px;text-decoration:none'>→ Open Full Dashboard</a></p>\n</div>",
+        "options": {}
+      },
+      "id": "f79fa99b-4c41-4376-a430-a3751a6f258a",
+      "name": "📧 Send Report via Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        240,
+        400
+      ],
+      "webhookId": "1bbf8d94-468f-4dae-a295-9d68b4f62bf5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "T7bBDRfcO6sFHHtv",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "b5ed549d-e0c4-4945-89b0-4c2c1f3c325a",
+      "name": "⏰ Check Every 1 Day",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -896,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gabungkan semua data dari 3 node sebelumnya\nconst stats    = $('📈  Fetch Yesterday\\'s Statistics').first().json;\nconst exported = $('📋 Export All Yesterday\\'s Feedback').first().json;\nconst dist  = stats.sentiment_distribution || {};\nconst total = stats.total_feedbacks || 0;\nconst pos   = dist.positive || 0;\nconst neu   = dist.neutral  || 0;\nconst neg   = dist.negative || 0;\nconst posRate = total > 0 ? ((pos/total)*100).toFixed(1) : 0;\nconst negRate = total > 0 ? ((neg/total)*100).toFixed(1) : 0;\n\n// Top kategori\nconst catDist = stats.category_distribution || {};\nconst topCats = Object.entries(catDist)\n  .sort((a,b) => b[1]-a[1]).slice(0,3)\n  .map(([k,v]) => `${k}: ${v}`).join(', ');\n\n// ambil tanggal dari created_at feedback pertama\nconst firstFeedback = exported.feedbacks?.[0];\nconst rawDate = firstFeedback?.created_at?.split('T')[0];\nconst date = rawDate\n  ? new Date(rawDate).toLocaleDateString('en-US', {\n      weekday:'long', year:'numeric', month:'long', day:'numeric'\n    })\n  : new Date().toLocaleDateString('en-US', {\n      weekday:'long', year:'numeric', month:'long', day:'numeric'\n    });\n\nreturn [{\n  json: {\n    date: date,\n    total, pos, neu, neg,\n    pos_rate: posRate,\n    neg_rate: negRate,\n    avg_rating: stats.average_rating || 0,\n    top_categories: topCats,\n    feedbacks: exported.feedbacks || [],\n    raw_stats: stats,\n  }\n}];"
+      },
+      "id": "86d4a701-a477-4661-ba4c-d26e97e8966f",
+      "name": "🔀 Merge & Calculate Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Siapkan rows untuk Google Sheets\nconst data = $input.first().json;\nconst today = data.feedbacks?.[0]?.created_at?.split('T')[0] || new Date().toISOString().split('T')[0];\n\n// Row summary untuk sheet pertama\nconst summaryRow = {\n  tanggal: today,\n  total_feedback: data.total,\n  positif: data.pos,\n  netral: data.neu,\n  negatif: data.neg,\n  persen_positif: data.pos_rate + '%',\n  persen_negatif: data.neg_rate + '%',\n  avg_rating: data.avg_rating,\n  top_kategori: data.top_categories\n};\n\n// Rows detail feedback untuk sheet kedua\nconst detailRows = (data.feedbacks || []).map(f => ({\n  tanggal: f.created_at ? f.created_at.split('T')[0] : today,\n  feedback_id: f.id,\n  customer_id: f.customer_id || '-',\n  teks_feedback: f.text ? f.text.slice(0, 1000) : '',\n  sentimen: f.sentiment,\n  respons_ai: f.sentiment_respon ? f.sentiment_respon.slice(0, 1000) : '',\n  kategori: f.category || '-',\n  rating: f.rating || '-',\n  sumber: f.source || '-'\n}));\n\nreturn [{ json: { summaryRow, detailRows, ...data } }];"
+      },
+      "id": "a9dd9513-0bfc-4004-88f9-7f4d3ec89ab3",
+      "name": "📝 Prepare Data for Google Sheets",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -224,
+        128
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "📋 Write to Sheet: Feedback Detail ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📈  Fetch Yesterday's Statistics": {
+      "main": [
+        [
+          {
+            "node": "🔀 Merge & Calculate Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📋 Export All Yesterday's Feedback": {
+      "main": [
+        [
+          {
+            "node": "🔀 Merge & Calculate Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Write to Sheet: Daily Summary": {
+      "main": [
+        []
+      ]
+    },
+    "📋 Write to Sheet: Feedback Detail ": {
+      "main": [
+        []
+      ]
+    },
+    "⏰ Check Every 1 Day": {
+      "main": [
+        [
+          {
+            "node": "📈  Fetch Yesterday's Statistics",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "📋 Export All Yesterday's Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔀 Merge & Calculate Data": {
+      "main": [
+        [
+          {
+            "node": "📝 Prepare Data for Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📝 Prepare Data for Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "📊 Write to Sheet: Daily Summary",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "📧 Send Report via Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a1f3aa69-1b0f-41c0-af7a-30f96d9982c2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7256dd97daabacd168e881dc72ac2d4322e2325c2ef26cc7fe5c383ba38e40cf"
+  },
+  "id": "4ssHGmlNZFxw2GCC",
+  "tags": [
+    {
+      "updatedAt": "2026-05-01T15:16:11.355Z",
+      "createdAt": "2026-05-01T15:16:11.355Z",
+      "id": "7hJwa2c4Hmce89QT",
+      "name": "daily-report"
+    }
+  ]
+}

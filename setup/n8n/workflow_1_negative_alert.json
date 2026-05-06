@@ -1,0 +1,155 @@
+{
+  "name": "🚨 Workflow 1 — Alert Feedback Negatif Real-time",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "08bf5a96-e6ef-4b2e-9c2e-230fcc60aebe",
+      "name": "⏰ Check Every 1 Day",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -656,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://backend:8000/api/v1/feedback/report/export",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "sentiment",
+              "value": "negative"
+            },
+            {
+              "name": "days",
+              "value": "1"
+            },
+            {
+              "name": "limit",
+              "value": "50"
+            },
+            {
+              "name": "date",
+              "value": "2026-05-02"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f66ea23a-b349-4941-8160-29e166f0f719",
+      "name": "📥 Fetch New Negative Feedback",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -432,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst negatives = raw.feedbacks.filter(f => f.sentiment === \"negative\");\n\nconst rawTanggal = negatives[0]?.created_at.split(\"T\")[0];\nconst tanggal = rawTanggal \n  ? new Date(rawTanggal).toLocaleDateString('en-US', {\n      weekday:'long', year:'numeric', month:'long', day:'numeric'\n    })\n  : '-';\n\nconst byCategory = {};\nfor (const f of negatives) {\n  const cat = f.category || \"uncategorized\";\n  byCategory[cat] = (byCategory[cat] || 0) + 1;\n}\n\nconst categoryBreakdown = Object.entries(byCategory)\n  .map(([k, v]) => `• ${k}: ${v} feedback`)\n  .join(\"\\n\");\n\nconst feedbackList = negatives\n  .map((f, i) => `${i + 1}. [${f.category}] ⭐${f.rating} - ${f.customer_id}\\n   \"${f.text}\"`)\n  .join(\"\\n\\n\");\n\nreturn [{\n  json: {\n    tanggal: tanggal,\n    total: negatives.length,\n    generated_at: raw.generated_at,\n    category_breakdown: categoryBreakdown,\n    feedback_list: feedbackList\n  }\n}];"
+      },
+      "id": "144f70a6-372e-48bc-ac56-61c7bfe11b77",
+      "name": "📊 Create Alert Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -208,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "rikonakei@gmail.com",
+        "subject": "=🚨 [Alert] {{ $json.total }} New Negative Feedbacks - {{ $json.tanggal }}",
+        "message": "=<h2 style='color:#DC2626'>🚨 Negative Feedback Alert</h2>\n<p><b>Total:</b> {{ $json.total }} negative feedbacks</p>\n<p><b>Time:</b> {{ $json.generated_at }}</p>\n<h3>📂 Category Breakdown:</h3>\n<pre>{{ $json.category_breakdown }}</pre>\n<h3>📋 Feedback List:</h3>\n<pre>{{ $json.feedback_list }}</pre>",
+        "options": {}
+      },
+      "id": "bde5e589-b8cf-4e04-b07b-80e49fe1aed4",
+      "name": "📧 Send Alert Email to Ops Team",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        112
+      ],
+      "webhookId": "f2ddc8ad-364e-4caf-b19d-5175ea702fab",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "T7bBDRfcO6sFHHtv",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "⏰ Check Every 1 Day": {
+      "main": [
+        [
+          {
+            "node": "📥 Fetch New Negative Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📥 Fetch New Negative Feedback": {
+      "main": [
+        [
+          {
+            "node": "📊 Create Alert Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Create Alert Summary": {
+      "main": [
+        [
+          {
+            "node": "📧 Send Alert Email to Ops Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📧 Send Alert Email to Ops Team": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "c2bac21d-dc6a-442a-bcc0-c9ef767e21cf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7256dd97daabacd168e881dc72ac2d4322e2325c2ef26cc7fe5c383ba38e40cf"
+  },
+  "id": "Bvm2aFj1cjZy9reN",
+  "tags": [
+    {
+      "updatedAt": "2026-05-01T09:27:58.097Z",
+      "createdAt": "2026-05-01T09:27:58.097Z",
+      "id": "O0Z6Flf3TMm6QPQK",
+      "name": "feedback-alert"
+    }
+  ]
+}

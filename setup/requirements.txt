@@ -1,0 +1,67 @@
+# FastAPI & Server
+fastapi
+uvicorn
+python-dotenv
+pydantic
+pydantic-settings
+
+# Database
+sqlalchemy
+psycopg2-binary
+alembic
+asyncpg
+
+# RAG & Vector DB
+qdrant-client
+sentence-transformers==2.7.0
+transformers==4.40.2
+
+# LLM Integration
+google-generativeai
+langchain
+langchain-google-genai
+
+# Data Processing
+pandas
+numpy
+datasets
+huggingface-hub
+
+# NLP
+nltk
+scikit-learn
+textblob
+spacy
+
+# Web Scraping & HTTP
+requests
+aiohttp
+httpx
+
+# Logging & Monitoring
+python-json-logger
+prometheus-client
+
+# Testing
+pytest
+pytest-asyncio
+pytest-cov
+httpx
+
+# Code Quality
+black
+flake8
+isort
+pylint
+
+# Utils
+python-multipart
+python-dateutil
+pytz
+croniter
+
+# API Documentation
+python-multipart
+
+# Environment & Config
+python-decouple
